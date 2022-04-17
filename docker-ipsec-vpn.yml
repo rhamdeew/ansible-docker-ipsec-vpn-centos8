@@ -1,0 +1,90 @@
+- hosts: "{{ variable_host }}"
+  #Uncomment if ssh root not allowed
+  #become: yes
+  #become_method: sudo
+
+  vars:
+    swap_file_size_mb: '2048'
+    pip_package: python3-pip
+    pip_executable: pip3
+    pip_install_packages:
+      - name: docker
+    authorized_keys_file_path: ./files/authorized_keys
+    docker_ipsec_vpn_path: ./docker-ipsec-vpn/
+    docker_ipsec_vpn_remote_part_path: docker-ipsec-vpn/
+
+  vars_files:
+    - main.yml
+    - vars/security.yml
+
+  pre_tasks:
+    - name: Install yum epel-release
+      yum:
+        name: ['epel-release']
+    - name: Install yum package
+      yum:
+        name: ['python3-libselinux', 'curl', 'wget', 'git', 'vim', 'python3-policycoreutils', 'p7zip', 'firewalld', 'tmux', 'make', 'pwgen']
+    - name: Disable SElinux
+      selinux:
+        state: disabled
+    - name: set timezone to Europe/Moscow
+      timezone:
+        name: Europe/Moscow
+    - name: Open custom SSH port
+      ansible.posix.firewalld:
+        port: '{{ security_ssh_port }}/tcp'
+        permanent: yes
+        zone: public
+        state: enabled
+    - name: Reboot
+      reboot:
+        reboot_timeout: '60'
+
+  tasks:
+    - name: Create {{ username }} user
+      user:
+        name: '{{ username }}'
+        generate_ssh_key: yes
+        ssh_key_bits: 2048
+        ssh_key_file: .ssh/id_rsa
+        shell: /bin/bash
+        uid: '{{ uid }}'
+        home: /srv/{{ username }}
+        groups: docker
+
+    - name: Check file {{ authorized_keys_file_path }} exists
+      local_action: stat path={{ authorized_keys_file_path }}
+      register: authorized_keys_file
+      #Uncomment if ssh root not allowed
+      #become: no
+
+    - name: Copy authorized_keys for {{ username }}
+      copy:
+        src: '{{ authorized_keys_file_path }}'
+        dest: /srv/{{ username }}/.ssh/authorized_keys
+        owner: '{{ username }}'
+        group: '{{ username }}'
+        mode: 0600
+      when: authorized_keys_file.stat.exists
+
+    - name: Copy docker-ipsec-vpn dir recursively
+      copy:
+        src: '{{ docker_ipsec_vpn_path }}'
+        dest: /srv/{{ username }}/{{ docker_ipsec_vpn_remote_part_path }}
+        owner: '{{ username }}'
+        group: '{{ username }}'
+        mode: 0755
+        directory_mode: 0755
+
+    - file:
+        path: /srv/{{ username }}
+        owner: '{{ username }}'
+        group: '{{ username }}'
+        recurse: yes
+
+  roles:
+    - geerlingguy.swap
+    - geerlingguy.repo-epel
+    - geerlingguy.security
+    - geerlingguy.pip
+    - geerlingguy.docker
