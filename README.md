@@ -29,6 +29,16 @@ Example:
 brew install ansible
 ```
 
+3. Configure Ansible
+
+```
+vim ~/.ansible.cfg 
+```
+
+```
+[defaults]
+inventory      = ~/.ansible_hosts
+```
 
 # Ansible playbook
 
@@ -44,16 +54,22 @@ vpn1 ansible_user=root ansible_host=127.0.0.1
 2. Init config and edit if necessary
 
 ```
-make i
+make init
 ```
 
 edit main.yml
 
-3. Copy your ~/.ssh/id_rsa.pub to files/authorized_keys
+3. Install additional Ansible roles from Ansible Galaxy
+
+```
+make install
+```
+
+4. Copy your ~/.ssh/id_rsa.pub to files/authorized_keys
 
 `cat ~/.ssh/id_rsa.pub > ./files/authorized_keys`
 
-4. Run playbook
+5. Run playbook
 
 ```
 make s
@@ -65,7 +81,7 @@ or without strict host checking
 make ns
 ```
 
-5. Add server credentials to ~/.ssh/config
+6. Add server credentials to ~/.ssh/config
 
 Example:
 

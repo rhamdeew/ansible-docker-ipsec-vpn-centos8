@@ -1,7 +1,10 @@
 # copy config from example
 init:
 	cp main.yml.example main.yml
-i: init
+
+# install dependencies
+install:
+	ansible-galaxy install geerlingguy.swap geerlingguy.repo-epel geerlingguy.security geerlingguy.pip geerlingguy.docker
 
 # run ansible playbook
 start:
