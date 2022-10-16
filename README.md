@@ -10,6 +10,7 @@ Docker IPsec VPN on CentOS 8
 - create user www, add auth keys, group docker
 - prepare docker ipsec vpn
 
+**If you have already installed docker, you can go to the [VPN Server starting](#vpn-server-starting) section and start VPN-server immediately.**
 
 # Prerequisites
 
