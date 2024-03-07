@@ -104,7 +104,9 @@ Hostname 127.0.0.1
 
 3. Start VPN Server `./start.sh`
 
-4. Copy config from container `./copy_config.sh` (for Mac and iOS)
+4. Wait about 1 minute
+
+5. Copy config from container `./copy_config.sh` (for Mac and iOS)
 
 Please look at README on [hwdsl2/docker-ipsec-vpn-server](https://github.com/hwdsl2/docker-ipsec-vpn-server#configure-and-use-ikev2-vpn) repository for another config options. 
 
